@@ -61,6 +61,9 @@ _WECHAT_AD_HOC_SUPPORTED_CLIENTS = frozenset(
         # 4.1.11 carried; see _debug_copy_entitlements for why absence
         # is accepted while a wrong claim is still refused.
         ("4.1.13", "269579"),
+        # 4.1.15 (270100) inspected: same entitlement shape as 4.1.13
+        # (no developer team-identifier claim, single application group).
+        ("4.1.15", "270100"),
     }
 )
 _WECHAT_MACH_REGISTER_ENTITLEMENT = (
@@ -408,8 +411,9 @@ def _debug_copy_entitlements(
     preserving them under an ad-hoc signature passes ``codesign --verify`` but
     is rejected by AMFI at exec time.  Remove only the known identity-bound
     values.  WeChat 4.1.13 no longer carries the developer team-identifier
-    claim at all; an absent claim is accepted because it is strictly weaker
-    than a present one, while a present-but-wrong team is still refused.  The
+    claim at all, and 4.1.15 keeps that shape; an absent claim is accepted for
+    these verified clients because it is strictly weaker than a present one,
+    while a present-but-wrong team is still refused.  The
     team remains pinned twice over by the application identifier and the
     application-group allowlist.  Older allowlisted builds must retain their
     exact team claim.  The sandboxed WeChat process also registers one
@@ -434,7 +438,10 @@ def _debug_copy_entitlements(
         team_identifier_key = "com.apple.developer.team-identifier"
         has_team_identifier = team_identifier_key in original_entitlements
         team_identifier = original_entitlements.get(team_identifier_key)
-        may_omit_team_identifier = client_version == ("4.1.13", "269579")
+        may_omit_team_identifier = client_version in {
+            ("4.1.13", "269579"),
+            ("4.1.15", "270100"),
+        }
         application_groups = original_entitlements.get(
             _WECHAT_APPLICATION_GROUPS_ENTITLEMENT
         )
