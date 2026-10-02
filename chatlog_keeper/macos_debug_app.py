@@ -39,8 +39,8 @@ _DEBUG_COPY_FORMATS = {
     # entitlement decision must not invalidate an unrelated QQ private copy.
     "qq": b"preserve-nested-signatures-v7-wechat-compat-exact-entitlements-kernel-pid",
     "wechat": (
-        b"preserve-nested-signatures-v13-wechat-exact-build-"
-        b"optional-team-entitlement-root-seal"
+        b"preserve-nested-signatures-v14-wechat-exact-build-"
+        b"optional-team-entitlement-root-seal-xplayer-270100"
     ),
 }
 _GET_TASK_ALLOW_ENTITLEMENT = "com.apple.security.get-task-allow"
@@ -416,10 +416,10 @@ def _debug_copy_entitlements(
     while a present-but-wrong team is still refused.  The
     team remains pinned twice over by the application identifier and the
     application-group allowlist.  Older allowlisted builds must retain their
-    exact team claim.  The sandboxed WeChat process also registers one
-    PID-suffixed Mach rendezvous service under its original application
+    exact team claim.  The sandboxed WeChat process also registers
+    PID-suffixed Mach rendezvous services under its original application
     identifier; after the signing identity is removed, preserve only that
-    exact capability through Apple's scoped temporary-exception entitlement.
+    exact capabilities through Apple's scoped temporary-exception entitlement.
     Fail closed if a future client introduces another developer, private, or
     keychain identity claim that needs a separate compatibility decision.
     """
@@ -474,6 +474,14 @@ def _debug_copy_entitlements(
             f"{_WECHAT_APPLICATION_IDENTIFIER}.MachPortRendezvousServer.*",
             f"{_WECHAT_APPLICATION_IDENTIFIER}.MMMojo.MachPortRendezvousServer.*",
         ]
+        if client_version == ("4.1.15", "270100"):
+            # Native 270100 sandbox diagnostics show libxplayer registering
+            # this additional PID-suffixed service. Without the exact grant,
+            # XPlayerMojomThread may trap during login before key verification.
+            # Keep older builds and unrelated Mach service names unchanged.
+            expected[_WECHAT_MACH_REGISTER_ENTITLEMENT].append(
+                f"{_WECHAT_APPLICATION_IDENTIFIER}.XPlayerMachPortRendezvousServer.*"
+            )
     expected[_GET_TASK_ALLOW_ENTITLEMENT] = True
     return expected
 

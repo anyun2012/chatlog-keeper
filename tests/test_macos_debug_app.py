@@ -2048,6 +2048,28 @@ def test_wechat_4_1_15_accepts_absent_team_identifier():
     ] == [
         f"{_WECHAT_APPLICATION_IDENTIFIER}.MachPortRendezvousServer.*",
         f"{_WECHAT_APPLICATION_IDENTIFIER}.MMMojo.MachPortRendezvousServer.*",
+        f"{_WECHAT_APPLICATION_IDENTIFIER}.XPlayerMachPortRendezvousServer.*",
+    ]
+
+
+@pytest.mark.parametrize("client_version", [
+    ("4.1.11", "269136"),
+    ("4.1.12", "269364"),
+    ("4.1.13", "269579"),
+])
+def test_xplayer_registration_grant_does_not_expand_older_builds(client_version):
+    original = _wechat_4_1_15_entitlements()
+    if client_version[0] != "4.1.13":
+        original["com.apple.developer.team-identifier"] = "5A4RE8SF68"
+    granted = macos_debug_app._debug_copy_entitlements(
+        "wechat", original, client_version=client_version,
+    )
+    assert granted is not None
+    assert granted[
+        "com.apple.security.temporary-exception.mach-register.global-name"
+    ] == [
+        f"{_WECHAT_APPLICATION_IDENTIFIER}.MachPortRendezvousServer.*",
+        f"{_WECHAT_APPLICATION_IDENTIFIER}.MMMojo.MachPortRendezvousServer.*",
     ]
 
 
