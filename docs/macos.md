@@ -40,6 +40,9 @@ access. Modern hardened clients usually deny that request.
   the exact Tencent Team ID, while 4.1.13 and 4.1.15 may omit that
   entitlement; other client builds and unknown developer, private, or keychain
   identity claims fail closed;
+- the exact 4.1.15 (270100) policy also permits the PID-suffixed XPlayer
+  rendezvous service observed in that build, so its media thread can initialize
+  without a sandbox registration denial terminating the private copy;
 - QQ keeps Hardened Runtime and is launched only after its signature, exact
   entitlement delta, and direct-library Team-ID relation are verified;
 - WeChat uses the upstream v0.2 compatibility signature: Hardened Runtime is

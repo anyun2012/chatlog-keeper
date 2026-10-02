@@ -33,6 +33,8 @@ JSON/HTML 导出格式与 Windows 完全一致。
   4.1.11 与 4.1.12 必须携带精确的腾讯 Team ID，4.1.13 与 4.1.15 可以缺少该
   entitlement；其他客户端版本以及未知 developer、private 或 keychain 身份声明均
   安全失败；
+- 精确的 4.1.15（270100）策略还允许该构建实机观察到的 PID 后缀 XPlayer
+  rendezvous 服务，避免媒体线程初始化时因沙盒拒绝注册端口而终止隔离副本；
 - QQ 副本保留 Hardened Runtime，并在验证签名、精确 entitlement 差异以及直接依赖的
   Team-ID 关系后才启动；
 - 微信采用上游 v0.2 的兼容签名：私有副本不启用 Hardened Runtime，因为 ad-hoc 主程序
